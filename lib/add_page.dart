@@ -37,13 +37,13 @@ class _AddPageState extends State<AddPage> {
       //기존에 파일이 있는 경우
       if (file.existsSync()) {
         var fileContents = await file.readAsString();
-        //[{기존 작성했던 글},{},{}...]=>String
+        //[{기존 작성했던 글},{},{}...]=>String err=[][]
         dataList = jsonDecode(fileContents) as List<dynamic>;
       }
       //내가 방금 쓴 글을 추가
       dataList.add(data);
       var jsonData = jsonEncode(dataList);
-      await file.writeAsString(jsonData, mode: FileMode.append);
+      var res = await file.writeAsString(jsonData, mode: FileMode.write);
       return true;
     } catch (e) {
       print(e);
@@ -90,11 +90,11 @@ class _AddPageState extends State<AddPage> {
               ),
             ),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 var title = controllers[0].text;
-                var result = fileSave(); //T, F
+                var result = await fileSave(); //T, F
                 if (result == true) {
-                  Navigator.pop(context, "ok");
+                  Navigator.pop(context, 'ok');
                 } else {
                   print('저장실패');
                 }
