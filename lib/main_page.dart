@@ -74,10 +74,14 @@ class _MainState extends State<Main> {
                     itemBuilder: (context, index) {
                       var data = dataList[index] as Map<String, dynamic>;
                       return ListTile(
-                        title: Text(data['title']),
-                        subtitle: Text(data['contents']),
-                        trailing: const Icon(Icons.delete),
-                      );
+                          title: Text(data['title']),
+                          subtitle: Text(data['contents']),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.delete),
+                            onPressed: () {
+                              deleteContents(index);
+                            },
+                          ));
                     },
                     separatorBuilder: (context, index) => const Divider(),
                     itemCount: dataList.length);
@@ -88,20 +92,49 @@ class _MainState extends State<Main> {
           );
         });
       } else {
-        print('암것도 없어용');
+        setState(() {
+          myList = const Text(
+            '파일이 없어용',
+            style: TextStyle(fontSize: 50),
+          );
+        });
       }
     } catch (e) {
       print('errer');
     }
   }
 
-  deleteFile() {
+  Future<void> deleteFile() async {
     try {
       var file = File(filePath);
-      file.delete();
+      var result = file.delete().then(
+        (value) {
+          print(value);
+          showList();
+        },
+      );
       setState(() {});
     } catch (e) {
-      print('delete error');
+      print('deleteFile error');
+    }
+  }
+
+  Future<void> deleteContents(int index) async {
+    //파일을 불러옴 -> 그것을 [{},{}] -> jsondecode를 해서 List<map<dynamic>>으로 변환
+    //List니까 배열 조작 - 원하는 index번지 삭제 가능
+    //List<map<dynamic>> 를 jsonencode (String으로 변경) -> 다시 파일에 쓰기
+    //showList()
+    try {
+      File file = File(filePath);
+      var fileStr = await file.readAsString();
+      var dataList = jsonDecode(fileStr) as List<dynamic>;
+      dataList.removeAt(index);
+      var jsonData = jsonEncode(dataList);
+      var res = await file
+          .writeAsString(jsonData, mode: FileMode.write)
+          .then((value) => showList());
+    } catch (e) {
+      print('deleteContents error');
     }
   }
 
@@ -109,7 +142,7 @@ class _MainState extends State<Main> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Main Page'),
+        title: Text('File Name : $fileName'),
       ),
       body: SizedBox(
         width: double.infinity,
@@ -138,8 +171,8 @@ class _MainState extends State<Main> {
             }
           },
           child: const Icon(
-            Icons.add_circle_outline,
-            size: 40,
+            Icons.upload_file_sharp,
+            size: 35,
           )),
     );
   }
