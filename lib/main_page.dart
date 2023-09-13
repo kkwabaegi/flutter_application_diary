@@ -35,7 +35,8 @@ class Main extends StatefulWidget {
 class _MainState extends State<Main> {
   Directory? directory;
   String filePath = '';
-  String fileName = 'zzxx.json';
+  int count = 0;
+  late String fileName;
 
   dynamic myList = const Text(
     '준비',
@@ -46,6 +47,7 @@ class _MainState extends State<Main> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    fileName = 'day$count.json';
     getPath().then((value) {
       showList();
     });
@@ -70,6 +72,13 @@ class _MainState extends State<Main> {
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 var dataList = jsonDecode(snapshot.data!) as List<dynamic>;
+                if (dataList.isEmpty) {
+                  return const Text(
+                    '내용이 없어용',
+                    style: TextStyle(fontSize: 50),
+                  );
+                }
+
                 return ListView.separated(
                     itemBuilder: (context, index) {
                       var data = dataList[index] as Map<String, dynamic>;
@@ -138,6 +147,11 @@ class _MainState extends State<Main> {
     }
   }
 
+  fileControll(int num) {
+    count += 1;
+    showList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -148,6 +162,14 @@ class _MainState extends State<Main> {
         width: double.infinity,
         height: double.infinity,
         child: Column(children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              ElevatedButton(
+                  onPressed: fileControll(1), child: const Text('이전')),
+              ElevatedButton(onPressed: deleteFile, child: const Text('다음'))
+            ],
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
