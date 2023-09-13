@@ -36,7 +36,11 @@ class _MainState extends State<Main> {
   Directory? directory;
   String filePath = '';
   String fileName = 'zzxx.json';
-  dynamic myList = const Text('준비');
+
+  dynamic myList = const Text(
+    '준비',
+    style: TextStyle(fontSize: 100),
+  );
 
   @override
   void initState() {
@@ -91,6 +95,16 @@ class _MainState extends State<Main> {
     }
   }
 
+  deleteFile() {
+    try {
+      var file = File(filePath);
+      file.delete();
+      setState(() {});
+    } catch (e) {
+      print('delete error');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -101,7 +115,13 @@ class _MainState extends State<Main> {
         width: double.infinity,
         height: double.infinity,
         child: Column(children: [
-          ElevatedButton(onPressed: showList, child: const Text('조회')),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              ElevatedButton(onPressed: showList, child: const Text('조회')),
+              ElevatedButton(onPressed: deleteFile, child: const Text('삭제'))
+            ],
+          ),
           Expanded(child: myList)
         ]),
       ),
