@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_application_diary/add_page.dart';
-import 'package:path/path.dart';
+import 'package:flutter_application_diary/directory_page.dart';
 import 'package:path_provider/path_provider.dart';
 
 class MainPage extends StatefulWidget {
@@ -146,17 +146,19 @@ class _MainState extends State<Main> {
     }
   }
 
-  Future<void> checkDirectory() async {
-    directory = await getApplicationDocumentsDirectory();
-    //서포트 디렉토리는 모든 플렛폼에서 지원
-    if (directory != null) {
+  Future<void> showFileList() async {
+    try {
+      directory = await getApplicationDocumentsDirectory();
       filePath = directory!.path;
       Directory dic = Directory(filePath);
-      var dicStr = dic.listSync();
-
-      if (dic.existsSync()) {
-        print(dicStr);
-      }
+      var dataList = dic.listSync().toList();
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => DirectoryPage(dataList: dataList)),
+      );
+    } catch (e) {
+      print('errer');
     }
   }
 
@@ -179,7 +181,7 @@ class _MainState extends State<Main> {
                     lastDate: DateTime.now());
                 if (dt != null) {
                   setState(() {
-                    fileName = dt.toString().split(' ')[0];
+                    fileName = '${dt.toString().split(' ')[0]}.json';
                     getPath().then((value) {
                       showList();
                     });
@@ -191,8 +193,7 @@ class _MainState extends State<Main> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               ElevatedButton(onPressed: showList, child: const Text('조회')),
-              ElevatedButton(
-                  onPressed: checkDirectory, child: const Text('목록')),
+              ElevatedButton(onPressed: showFileList, child: const Text('목록')),
               ElevatedButton(onPressed: deleteFile, child: const Text('삭제'))
             ],
           ),
