@@ -26,7 +26,7 @@ class _DirectoryPageState extends State<DirectoryPage> {
                 icon: const Icon(Icons.delete),
                 onPressed: () {
                   setState(() {
-                    File(widget.dataList[index].path + 2).delete();
+                    File(widget.dataList[index + 2].path).delete();
                   });
                 },
               ));
