@@ -35,8 +35,7 @@ class Main extends StatefulWidget {
 class _MainState extends State<Main> {
   Directory? directory;
   String filePath = '';
-  int count = 0;
-  late String fileName;
+  late String fileName = 'diary.json';
 
   dynamic myList = const Text(
     '준비',
@@ -47,7 +46,7 @@ class _MainState extends State<Main> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    fileName = 'day$count.json';
+    fileName = 'diary.json';
     getPath().then((value) {
       showList();
     });
@@ -147,9 +146,18 @@ class _MainState extends State<Main> {
     }
   }
 
-  fileControll(int num) {
-    count += 1;
-    showList();
+  Future<void> checkDirectory() async {
+    directory = await getApplicationDocumentsDirectory();
+    //서포트 디렉토리는 모든 플렛폼에서 지원
+    if (directory != null) {
+      filePath = directory!.path;
+      Directory dic = Directory(filePath);
+      var dicStr = dic.listSync();
+
+      if (dic.existsSync()) {
+        print(dicStr);
+      }
+    }
   }
 
   @override
@@ -162,18 +170,29 @@ class _MainState extends State<Main> {
         width: double.infinity,
         height: double.infinity,
         child: Column(children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              ElevatedButton(
-                  onPressed: fileControll(1), child: const Text('이전')),
-              ElevatedButton(onPressed: deleteFile, child: const Text('다음'))
-            ],
-          ),
+          IconButton(
+              onPressed: () async {
+                var dt = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime(2023),
+                    lastDate: DateTime.now());
+                if (dt != null) {
+                  setState(() {
+                    fileName = dt.toString().split(' ')[0];
+                    getPath().then((value) {
+                      showList();
+                    });
+                  });
+                }
+              },
+              icon: const Icon(Icons.calendar_month)),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               ElevatedButton(onPressed: showList, child: const Text('조회')),
+              ElevatedButton(
+                  onPressed: checkDirectory, child: const Text('목록')),
               ElevatedButton(onPressed: deleteFile, child: const Text('삭제'))
             ],
           ),
