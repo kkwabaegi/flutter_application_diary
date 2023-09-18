@@ -115,13 +115,14 @@ class _MainState extends State<Main> {
   Future<void> deleteFile() async {
     try {
       var file = File(filePath);
-      var result = file.delete().then(
-        (value) {
-          print(value);
-          showList();
-        },
-      );
-      setState(() {});
+      if (file.existsSync()) {
+        file.delete().then(
+          (value) {
+            print(value);
+            showList();
+          },
+        );
+      }
     } catch (e) {
       print('deleteFile error');
     }
@@ -148,7 +149,6 @@ class _MainState extends State<Main> {
 
   Future<void> showFileList() async {
     try {
-      directory = await getApplicationDocumentsDirectory();
       filePath = directory!.path;
       Directory dic = Directory(filePath);
       var dataList = dic.listSync().toList();
@@ -157,6 +157,7 @@ class _MainState extends State<Main> {
         MaterialPageRoute(
             builder: (context) => DirectoryPage(dataList: dataList)),
       );
+      getPath().then((value) => showList());
     } catch (e) {
       print('errer');
     }
